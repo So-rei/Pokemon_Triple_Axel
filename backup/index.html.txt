@@ -1,0 +1,70 @@
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+<body>
+  <div>
+    <form name="Enemy_Rank">
+      敵A実数値:<input id="Enemy_A" value="189" />
+      敵ランク:
+      <select id="Enemy_Rank">
+          <option value="6">+6</option>
+          <option value="5">+5</option>
+          <option value="4">+4</option>
+          <option value="3">+3</option>
+          <option value="2">+2</option>
+          <option value="1">+1</option>
+          <option value="0" selected>0</option>
+          <option value="-1">-1</option>
+          <option value="-2">-2</option>
+          <option value="-3">-3</option>
+          <option value="-4">-4</option>
+          <option value="-5">-5</option>
+          <option value="-6">-6</option>
+      </select>
+    </form>
+  </div>
+  <form id="Enemy_Item">
+    敵持ち物(火力補正):
+    <input name="Enemy_Item" type="radio" value="4096" checked="checked">なし
+    <input name="Enemy_Item" type="radio" value="4915"> x1.2
+    <input name="Enemy_Item" type="radio" value="5324"> x1.3
+    <input name="Enemy_Item" type="radio" value="6144"> x1.5
+  </form>
+  <div>
+    <input type="checkbox" id="Enemy_Type"/>タイプ一致
+  </div>
+    
+  <BR>
+  <div>
+    味方B実数値:<input id="Party_B" value="150"></input>
+  </div>
+<form id="Party_Item">
+    味方持ち物(耐久補正):
+    <input type="radio" name="Party_Item" id="Party_Item" value="0" checked="checked">なし</input>
+    <input type="radio" name="Party_Item" id="Party_Item" value="1">アッキの実</input>
+    <input type="radio" name="Party_Item" id="Party_Item" value="2">しんかのきせき</input>
+    <!--<input type="radio" name="Party_Item" id="Party_Item" value="3" disabled>オボンの実</input>
+    <input type="radio" name="Party_Item" id="Party_Item" value="4" disabled>イアの実</input>-->
+</form>
+  <BR>
+<form id="Ret_Type">
+    最終的なタイプ相性:
+    <input type="radio" name="Ret_Type" id="Ret_Type" value="0.25">いまひとつ(x1/4)</input>
+    <input type="radio" name="Ret_Type" id="Ret_Type" value="0.50">いまひとつ(x1/2)</input>
+    <input type="radio" name="Ret_Type" id="Ret_Type" value="1.00" checked="checked">等倍(x1)</input>
+    <input type="radio" name="Ret_Type" id="Ret_Type" value="2.00">抜群(x2)</input>
+    <input type="radio" name="Ret_Type" id="Ret_Type" value="4.00">抜群(x4)</input>
+</form>
+  <div>
+    <input type="checkbox" id="Ret_ignore_crit" checked="checked" disabled/>急所を無視
+  </div>
+  <div>
+    <button onclick="Calc();">計算!</button>
+        
+    <div id="RET">XX</div>
+    <div class="view">
+      <canvas id="stage"></canvas>
+    </div>
+  </div>
+</body>
+

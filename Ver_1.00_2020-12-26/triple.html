@@ -1,0 +1,147 @@
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+  <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=1.0, minimum-scale=0.5">
+
+</head>
+<body>
+  <div class="title-large">トリプルアクセル計算機</div>
+
+  <BR><BR>
+    
+    <form name="Enemy_Rank">
+      <div class="row">
+        <p class="col-xs-5 col-sm-4 col-md-2 col-lg-1">
+          敵A実数値:
+        </p>
+        <p class="col-xs-4 col-sm-3 col-md-2 col-lg-1">
+          <input id="Enemy_A" type="number" value="189" />
+        </p>
+        <p class="col-xs-2 col-sm-4 col-md-2 col-lg-2">
+        </p>
+        <p class="col-xs-5 col-sm-4 col-md-2 col-lg-1">
+        敵Aランク:
+        </p>
+        <p class="col-1">
+          <select id="Enemy_Rank">
+              <option value="6">+6</option>
+              <option value="5">+5</option>
+              <option value="4">+4</option>
+              <option value="3">+3</option>
+              <option value="2">+2</option>
+              <option value="1">+1</option>
+              <option value="0" selected>0</option>
+              <option value="-1">-1</option>
+              <option value="-2">-2</option>
+              <option value="-3">-3</option>
+              <option value="-4">-4</option>
+              <option value="-5">-5</option>
+              <option value="-6">-6</option>
+          </select>
+        </p>
+      </>
+    </form>
+  </div>
+  <form id="Enemy_Item">
+      <div class="row">
+        <p class="col-xs-12 col-sm-4 col-md-2 col-lg-1">
+          敵持ち物(火力補正):
+        </p>
+        <p class="col-xs-12 col-sm-6 col-md-4 col-lg-2">
+          <input name="Enemy_Item" type="radio" value="4096" checked="checked">なし
+          <input name="Enemy_Item" type="radio" value="4915"> x1.2
+          <input name="Enemy_Item" type="radio" value="5324"> x1.3
+          <input name="Enemy_Item" type="radio" value="6144"> x1.5
+        </p>
+        <p class="col-xs-3 col-sm-3 col-md-2 col-lg-1">
+          タイプ一致  <input type="checkbox" id="Enemy_Type"/>
+        </p>
+    </div>
+  </form>
+    
+    <div class="brank"></div>
+    
+<form id="Party_Item">
+  <div class="row">
+        <p class="col-xs-5 col-sm-4 col-md-2 col-lg-1">
+          味方B実数値:
+        </p>
+        <p class="col-xs-3 col-sm-3 col-md-2 col-lg-1">
+          <input id="Party_B" type="number" value="150"></input>
+        </p>
+        <p class="col-xs-2 col-sm-4 col-md-2 col-lg-2">
+        </p>
+        <p class="col-xs-5 col-sm-4 col-md-2 col-lg-1">
+          自Bランク:
+        </p>
+        <p class="col-1">
+          <select id="Party_Rank">
+            <option value="6">+6</option>
+            <option value="5">+5</option>
+            <option value="4">+4</option>
+            <option value="3">+3</option>
+            <option value="2">+2</option>
+            <option value="1">+1</option>
+            <option value="0" selected>0</option>
+            <option value="-1">-1</option>
+            <option value="-2">-2</option>
+            <option value="-3">-3</option>
+            <option value="-4">-4</option>
+            <option value="-5">-5</option>
+            <option value="-6">-6</option>
+          </select>
+        </p>
+  </div>
+  <div class="row">
+    <p class="col-xs-12 col-sm-4 col-md-3 col-lg-1">
+      味方持ち物(耐久補正):
+    </p>
+    <p class="col-xs-12 col-sm-8 col-md-6 col-lg-5">
+      <input type="radio" name="Party_Item" id="Party_Item" value="0" checked="checked">なし</input>
+      <input type="radio" name="Party_Item" id="Party_Item" value="1">アッキの実</input>
+      <input type="radio" name="Party_Item" id="Party_Item" value="2">しんかのきせき</input>
+      <!--<input type="radio" name="Party_Item" id="Party_Item" value="3" disabled>オボンの実</input>
+      <input type="radio" name="Party_Item" id="Party_Item" value="4" disabled>イアの実</input>-->
+    </p>
+  </div>
+</form>
+  <BR>
+<form id="Ret_Type">
+  <div class="row">
+    <p class="col-xs-12 col-sm-4 col-md-3 col-lg-1">
+      最終的なタイプ相性:
+    </p>
+    <p class="col-xs-12 col-sm-12 col-md-9 col-lg-6">
+      <input type="radio" name="Ret_Type" id="Ret_Type" value="0.25">いまひとつ(x1/4)</input>
+      <input type="radio" name="Ret_Type" id="Ret_Type" value="0.50">いまひとつ(x1/2)</input>
+      <input type="radio" name="Ret_Type" id="Ret_Type" value="1.00" checked="checked">等倍(x1)</input>
+      <input type="radio" name="Ret_Type" id="Ret_Type" value="2.00">抜群(x2)</input>
+      <input type="radio" name="Ret_Type" id="Ret_Type" value="4.00">抜群(x4)</input>
+    </p>
+  </div>
+</form>
+  <div>
+    急所を無視  <input type="checkbox" id="Ret_ignore_crit"/>
+  </div>
+  <div>
+    
+    <a class="btn btn--orange" onclick="Calc();">計算!</a>
+    
+    <div class="row">
+      <div class="col-xs-12 col-sm-10 col-md-8 col-lg-5" id="RET"></div> 
+    </div>
+    
+    <div class="brank"></div>
+    
+    <div class="row">
+      <div class="view">
+        <p class="col-xs-12 col-sm-12 col-md-10 col-lg-5">
+          <canvas id="stage"></canvas>
+        </p>
+      </div>
+    </div>
+        
+    <div class="CO">2020/12/26 Ver.1.0 by S.O.</div>
+  </div>
+</body>
+

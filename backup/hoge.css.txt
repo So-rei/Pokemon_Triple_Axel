@@ -1,0 +1,9 @@
+*{
+  margin:10;
+  padding:10;
+}
+.view{
+  /*background-color:#f00;*/   /*color:#fff;*/
+  width:50%;
+  height:40%;
+}

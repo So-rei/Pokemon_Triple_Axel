@@ -1,0 +1,251 @@
+//トリプルアクセル基本性能値
+var HIT_ZERO = 0.90;//わざの基本命中率
+var HIT_PER = [0.09,0.081,0.729,0,0];//1発目HIT率~n発目HIT率
+var HIT_VAL = [20,40,60,0,0];//1発目~n発目威力
+//入力値
+var Crit_Per = 1 / 24;//急所率
+var Enemy_Item_Per = 4096;//敵アイテム補正率
+var Enemy_A = 189;//敵攻撃実数値
+var Enemy_Rank = 0;//敵攻撃ランク
+var Enemy_Type = false;//タイプ一致フラグ 
+
+var Party_Item_Id = 0;//自アイテム補正
+var Party_B = 150;//味方防御実数値
+var Party_Rank = 0;//味方防御ランク
+
+var Ret_Type_per = 1.0;//最終的なタイプ相性
+
+var CUT_DIGIT = 4;//浮動小数点の見た目が悪いので対策　確率計算後、小数点第n位で四捨五入して表示する
+
+//テストコード表示用■■■
+var ret = document.getElementById("RET");
+ret.innerHTML = "";
+//-----------------
+
+//グラフ初期ロード
+  //「オプション設定」
+  var options = {
+    title: {    
+      display: true,
+      text: 'ダメージ確率分布表'
+    }
+  };
+var canvas = document.getElementById('stage');
+window.myLine = new Chart(canvas, {
+  type: 'line',  //グラフの種類
+  data: null,  //表示するデータ
+  options: options  //オプション設定
+});
+
+//メイン計算------------------------------------------------------------
+function Calc(){
+  ret.innerHTML = "";//テストコード表示用■■■
+  
+  ParamSet();
+  
+  //最終的にグラフに渡す配列
+  var Map_x=[];
+  var Map_y=[];
+  var DMG_MAX = 0;
+  
+  //1~n発目のダメージ配列を(通常/急所)でそれぞれ取得
+  var Ary_Dmg = [];
+  var Ary_Dmg_Crit = [];
+  for (let i = 0; i < 3; i++){
+    Ary_Dmg.push(CalcDmg(HIT_VAL[i],Enemy_A,Party_B));
+    if (Crit_Per > 0)      
+      Ary_Dmg_Crit.Push(CalcDmg(HIT_VAL[i],Enemy_A,Party_B,true));
+    if (i==0 && Party_Item_Id == "1")//アッキの実　１回目終了後発動
+      Party_Rank = Number(Party_Rank + 1) > 6 ? 6 : Number(Party_Rank + 1);
+  }  
+  
+  //配列を用意する
+  for (let i = 0; i < 3; i++){
+    if (Crit_Per == 0){
+      DMG_MAX += Ary_Dmg[i][15];
+    }else{
+      DMG_MAX += Ary_Dmg_Crit[i][15];
+    }
+  }
+  for (let i = 0; i <= DMG_MAX; i++){
+    Map_x.push(i);//x軸値=名称(0,1,...)
+    Map_y.push(0);//y軸値=クリア
+  }
+  
+  //i発ぶんHITしたときの確率とダメージ量を計算し、Map_yにセット
+  for (let i = 0; i < 4; i++){
+    if (i==0){
+      Map_y[0] += 100 * (1-HIT_ZERO);//初回Miss!
+    } else {
+      for (let p1 = 0; p1 < 32; p1++){
+        let dmg1 = 0;
+        if (Crit_Per == 0 && p1 >= 16) {continue;}
+        else if(p1 < 16) {dmg1 += Ary_Dmg[0][p1];}
+        else {dmg1 += Ary_Dmg_Crit[0][p1-16];}
+        if (i==1){
+          Map_y[dmg1] += 100 * HIT_PER[0] / 16;
+        }else {
+          for (let p2 = 0; p2 < 32; p2++){
+            let dmg2 = dmg1;
+            if (Crit_Per == 0 && p2 >= 16) {continue;}
+            else if(p2 < 16) {dmg2 += Ary_Dmg[1][p2];}
+            else {dmg2 += Ary_Dmg_Crit[1][p2-16];}
+            if (i==2){
+              Map_y[dmg2] += 100 * HIT_PER[1] / 16 / 16;        
+            } else { 
+              for (let p3 = 0; p3 < 32; p3++){
+                let dmg3 = dmg2;
+                if (Crit_Per == 0 && p3 >= 16) {continue;}
+                else if(p3 < 16) {dmg3 += Ary_Dmg[2][p3];}
+                else dmg3 += Ary_Dmg_Crit[2][p3-16];
+                if (i==3){
+                  Map_y[dmg3] += 100 * HIT_PER[2] / 16 / 16 / 16;     
+                } else { 
+                  //4,5発目...
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  //グラフ描画[合計Ver]
+  var Map_y_sum = [];
+  var y_sum = 0.000;
+  for (let i = 0; i <= DMG_MAX; i++){
+    y_sum += Map_y[i];
+    Map_y_sum.push(Cut_Floor(y_sum));
+  }  
+  //グラフ描画[正規分布Ver]
+  for (let i = 0; i <= DMG_MAX; i++){
+    Map_y[i] = (Cut_Floor(Map_y[i]));
+  }
+  //GlaphDraw(Map_x,Map_y);
+  
+  GlaphDraw(Map_x,Map_y,Map_y_sum);
+}
+
+//入力された値を設定
+function ParamSet(){
+  if (document.getElementById( "Ret_ignore_crit" ).checked == true)
+    Crit_Per = 0;
+  let element1 = document.getElementById( "Party_Item" ) ;
+  Party_Item_Id　= element1.Party_Item.value;
+  let element2 = document.getElementById( "Enemy_Item" ) ;
+  Enemy_Item_Per　= element2.Enemy_Item.value;
+  let element3 = document.getElementById( "Ret_Type" ) ;
+  Ret_Type_per　= element3.Ret_Type.value;
+  Enemy_A = document.getElementById( "Enemy_A" ).value;
+  Enemy_Rank = document.getElementById("Enemy_Rank").value;
+  Enemy_Type = (document.getElementById( "Enemy_Type" ).checked == true);
+  Party_B = document.getElementById( "Party_B" ).value;
+  Party_Rank = document.getElementById("Party_Rank").value;
+}
+
+//被ダメージ量の計算式
+//input:  per:HIT率 val:威力 A:Attack B:Defense IsCrit=trueのとき急所
+//output: [[DMG1,確率1],[DMG2,確率2]...]の2次元配列
+function CalcDmg(val,A,B,IsCrit=false){
+  let res = [];
+  //ダメージ = 攻撃側のレベル × 2 ÷ 5 ＋ 2 → 切り捨て
+  //　× 物理技(特殊技)の威力 × 攻撃側のこうげき(とくこう) ÷ 防御側のぼうぎょ(とくぼう) → 切り捨て
+  //　÷ 50 ＋ 2 → 切り捨て
+  //　× 乱数(0.85, 0.86, …… ,0.99, 1.00 の何れか) → 切り捨て
+  //A,Bはランク補正も入る(その度切り捨て)
+  
+  let final_A = 1;
+  if (IsCrit && Enemy_Rank < 0) {
+    final_A = 1; 
+  }else if (Enemy_Rank >= 0 ) {//攻撃ランク補正
+    final_A = Math.floor(A * (Enemy_Rank + 2) / 2);
+  }else{
+    final_A = Math.floor(A * 2 / (-1) * (Enemy_Rank - 2));
+  }
+  //final_A = Math.floor(final_A * 6144 / 4096);//はりきり
+  if (Enemy_Item_Per == "6144")//ハチマキorメガネ
+    final_A = Math.round(final_A * 6144 / 4096);//ハチマキorメガネ
+  //final_A = Math.floor(final_A * 1.0);//攻撃特性
+  let final_B = 1;//防御ランク補正
+  if (IsCrit && Party_Rank > 0) {
+    final_B = 1; 
+  }else if (Party_Rank >= 0) {
+    final_B = Math.floor(B * (Party_Rank + 2) / 2);
+  }else{
+    final_B = Math.floor(B * 2 / (-1) * (Party_Rank - 2));
+  }
+  if (Party_Item_Id == "2")
+    final_B = Math.floor(final_B * 1.5);//しんかのきせき 厳密には5捨5超入だが省略
+  
+  let d = 22;
+  d = Math.floor(d * val * final_A / final_B);
+  d = Math.floor(d / 50 + 2);
+  if (IsCrit) 
+    d = Math.floor(d * 6144 / 4096);//急所
+  
+  for (let i = 0; i < 16; i++){
+    let d_one = Math.floor(d * (0.85 + i / 100));//乱数
+    if (Enemy_Type == true)
+      d_one = Math.floor(d_one * 6144 / 4096);//攻撃側タイプ一致補正
+    d_one = Math.floor(d_one * Ret_Type_per);//タイプ相性補正
+    if (Enemy_Item_Per != "6144") 
+      d_one = Math.floor(d_one * Enemy_Item_Per / 4096);//アイテム補正
+    if (d_one == 0) 
+      d_one = 1;
+    res.push(d_one);
+  }
+  
+  //res = {10.....,11....,12}のような配列
+  //計算量削減のため、これを={10,5回}{11,4回}{12,1回}のような二次元配列に変換する
+  
+  ret.innerHTML += '<div>' + res.join(',') + '</div>';//テストコード■■■
+  return res;
+}
+
+//浮動小数点対策
+function Cut_Floor(d){
+  return Math.round(d * Math.pow(10,CUT_DIGIT)) / Math.pow(10,CUT_DIGIT);//(-1) * CUT_DIGIT
+}
+
+
+//以下グラフ表示用------------------------------------------
+function GlaphDraw(labeldata,ydata,ydata_sum){
+  var mydata = {
+    labels: labeldata,
+    datasets: [
+      {
+        label: '確率<分布>',
+        backgroundColor: 'rgba(255,3,255,0.1)',
+        borderColor: 'rgba(255,3,255,0.1)',
+        //hoverBackgroundColor: 'rgba(255,3,255,0.1)',
+        data: ydata,
+        fill: true,
+      },
+      {
+        label: '確率<合計>',
+        backgroundColor: 'rgba(0,0,0,0.1)',
+        //hoverBackgroundColor: 'rgba(255,99,132,0.3)',
+        data: ydata_sum,
+        fill: false,
+      }
+    ]
+  };
+  //var mydata = {
+  //  labels: labeldata,
+  //  datasets: [
+  //    {
+  //      label: '確率<分布>',
+  //      hoverBackgroundColor: "rgba(255,99,132,0.3)",
+  //      data: ydata,
+  //    }
+  //  ]
+  //};
+  window.myLine.data = mydata;
+  
+  window.myLine.update();//描画更新
+}
+
+window.onload = function() {
+  //Calc();
+};
